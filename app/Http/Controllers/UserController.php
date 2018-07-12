@@ -9,10 +9,10 @@ class UserController extends Controller
 {
     public function login()
 	{   
-        if (session()->has('auth_' . $this->userAccount)) {
+        if (session()->has('auth_' . $this->username)) {
             $this->isLogin = true;
              View::share('isLogin', true);
-             View::share('loginUser', session('auth_' . $this->userAccount));
+             View::share('loginUser', session('auth_' . $this->username));
         } else {
             $this->isLogin = false;
                 View::share('isLogin', false);
@@ -24,6 +24,15 @@ class UserController extends Controller
         } else {
             return redirect()->route('/home');
         }
+    }
+	
+	public function logout($username)
+    {
+        session()->forget('auth_' . $username);
+        cookie()->queue(cookie()->forget('auth_' . $username));
+
+        return redirect()->route('userLogin')
+            ->with(['message' => '成功登出!']);
     }
 	
 	public function auth(LoginPostRequest $request)
@@ -71,5 +80,17 @@ class UserController extends Controller
 
     return $response;
 	*/
+    }
+	
+	    public function signup()
+    {
+        if ($this->isLogin !== true) {
+            $customerSet = CustomerSet::create();
+            return response()->view('user.signup', [
+                'customerSet' => $customerSet
+            ])->withCookie(cookie($this->hotelDir . '-hotelId', $this->hotelId, 1440));
+        } else {
+            return redirect()->route('index', ['hotelDir' => $hotelDir]);
+        }
     }
 }

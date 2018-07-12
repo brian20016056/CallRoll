@@ -10,10 +10,15 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+Route::get('{hotelId?}', ['as' => 'index', 'uses' => 'IndexController@index']);
 
 Route::get('user/login', ['as' => 'userLogin', 'uses' => 'UserController@login']);
 
 Route::post('user/auth', ['as' => 'userAuth', 'uses' => 'UserController@auth']);
+
+Route::get('user/signup', ['as' => 'userSignup', 'uses' => 'UserController@signup']);
+
+
 
 Auth::routes();
 
