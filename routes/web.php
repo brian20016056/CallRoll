@@ -11,13 +11,13 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', ['as' => 'userLogin', 'uses' => 'UserController@login']);
+
+Route::post('user/auth', ['as' => 'userAuth', 'uses' => 'UserController@auth']);
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', 'HomeController@index');
 
 Auth::routes();
 
