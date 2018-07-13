@@ -10,7 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('{hotelId?}', ['as' => 'index', 'uses' => 'IndexController@index']);
+Route::get('{userId?}', ['as' => 'index', 'uses' => 'IndexController@index']);
 
 Route::get('user/login', ['as' => 'userLogin', 'uses' => 'UserController@login']);
 
@@ -22,7 +22,7 @@ Route::get('user/signup', ['as' => 'userSignup', 'uses' => 'UserController@signu
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index');
+Route::get('/home', ['as' => 'hame', 'uses' => 'HomeController@index']);
 
 Auth::routes();
 

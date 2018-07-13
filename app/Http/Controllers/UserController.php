@@ -7,20 +7,10 @@ use App\UserData
 
 class UserController extends Controller
 {
-    public function login()
+    public function login($username)
 	{   
-        if (session()->has('auth_' . $this->username)) {
-            $this->isLogin = true;
-             View::share('isLogin', true);
-             View::share('loginUser', session('auth_' . $this->username));
-        } else {
-            $this->isLogin = false;
-                View::share('isLogin', false);
-            }
 		if($this->isLogin !== true){
-			   return response()->view('user.login', [
-                'siteKey' => config('google.recaptcha_sitekey')
-            ])
+			   return response()->view('user.login');
         } else {
             return redirect()->route('/home');
         }
@@ -38,36 +28,21 @@ class UserController extends Controller
 	public function auth(LoginPostRequest $request)
 	{
     $params = $request->all();
-
-	/* google 我不是機器人功能
-    if (!isset($params['g-recaptcha-response']) ||
-        !$this->checkReCaptcha($params['g-recaptcha-response'], $request->ip())) {
-        return redirect()->route('userLogin');
-            ->withErrors([trans('controller/user.verifyError')]);
-    }
-    */
 	
-    $user = App\UserData::where('UserAccount', $params['username'])->get();      
+    $user = App\UserData::where('UserAccount', $params['username']);      
 
     if ($user) {
-        if ($user->password = trim($params['password']))
+        if ($user->UserPassword = trim($params['password']))
 		{
-        session(['auth_' . $user['username'] => $user['username']]);
+        session(['auth_' . $user['UserAccount'] => $user['UserAccount']]);
+		return redirect()->route(route 'userLogin');
+		View::share('username', $user->UserAccount);
 		}
     } else {
-		/*
-        if (\Language::get('locale') === 'zh-TW' && session()->has('loginMessage')) {
-            return redirect()->route('userLogin', ['hotelDir' => $hotelDir]);
-                ->withErrors([session()->get('loginMessage')]);
-        } else {
-             return redirect()->route('userLogin', ['hotelDir' => $hotelDir]);
-                ->withErrors([trans('controller/user.accountError')]);
-         }
-		 */
 		 return redirect()->route(route 'userLogin')
-		 ->withErrors(['帳號或密碼錯誤']);;
+		 ->withErrors(['查無此帳號']);;
     }
-    /*
+    /* 記住我 功能
     protected $response = redirect()->route('/home')
         ->with(['message' => trans('controller/user.loginSuccess')]);
     if (isset($params['remember']) && $params['remember'] === 'Y') {
@@ -89,6 +64,32 @@ class UserController extends Controller
             return response()->view('user.signup', [
                 'customerSet' => $customerSet
             ])->withCookie(cookie($this->hotelDir . '-hotelId', $this->hotelId, 1440));
+        } else {
+            return redirect()->route('index', ['hotelDir' => $hotelDir]);
+        }
+    }
+    public function register($username, RegisterPostRequest $request)
+    {
+        if ($this->isLogin !== true) {
+            $params = $request->all();
+			App\UserData::insert(  
+                ['UserAccount' => trim($params['UserAccount'])],
+                ['UserPassword' => trim($params['UserPassword'])],
+                ['UserName' => trim($params['UserAccount'])],
+            );
+
+            if ($user) {
+                return redirect()->route('userLogin', ['hotelDir' => $hotelDir])->with([
+                    'message' => trans('controller/user.signUpSuccess'),
+                    'register' => true
+                ]);
+            } else {
+                if (\Language::get('locale') === 'zh-TW' && session()->has('registerMessage')) {
+                    return redirect()->back()->withErrors([session('registerMessage')])->withInput();
+                } else {
+                    return redirect()->back()->withErrors([trans('controller/user.signUpFail')])->withInput();
+                }
+            }
         } else {
             return redirect()->route('index', ['hotelDir' => $hotelDir]);
         }
